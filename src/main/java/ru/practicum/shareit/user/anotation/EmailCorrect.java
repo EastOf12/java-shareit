@@ -10,10 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Constraint(validatedBy = EmailCorrectValidation.class)
-@Target({ ElementType.FIELD })
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EmailCorrect {
     String message() default "Email некорректен";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

@@ -18,7 +18,7 @@ public final class ItemMapper {
         );
 
 
-        if(newItemRequest.getRequest() != null) {
+        if (newItemRequest.getRequest() != null) {
             item.setRequest(newItemRequest.getRequest());
         }
 
@@ -30,7 +30,7 @@ public final class ItemMapper {
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.isAvailable(),
+                item.getAvailable(),
                 item.getOwner()
         );
     }

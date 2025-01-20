@@ -11,5 +11,5 @@ public class Booking {
     private LocalDateTime end;
     private Item item;
     private User booker;
-    private OrderStatus  status; //Тут должен быть enum
+    private OrderStatus status;
 }

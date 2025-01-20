@@ -29,11 +29,11 @@ public class UserStorage {
     public UserDto update(Long id, UpdateUserRequest updateUserRequest) {
         User updateUser = users.get(id);
 
-        if(updateUserRequest.getName() != null && !updateUserRequest.getName().isEmpty()) {
+        if (updateUserRequest.getName() != null && !updateUserRequest.getName().isEmpty()) {
             updateUser.setName(updateUserRequest.getName());
         }
 
-        if(updateUserRequest.getEmail() != null && !updateUserRequest.getEmail().isEmpty()) {
+        if (updateUserRequest.getEmail() != null && !updateUserRequest.getEmail().isEmpty()) {
             updateUser.setEmail(updateUserRequest.getEmail());
         }
 
@@ -44,7 +44,7 @@ public class UserStorage {
     }
 
     public UserDto get(Long id) {
-        if(!userExists(id)) {
+        if (!userExists(id)) {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
@@ -54,7 +54,7 @@ public class UserStorage {
     }
 
     public void remove(Long id) {
-        if(!userExists(id)) {
+        if (!userExists(id)) {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
@@ -74,7 +74,7 @@ public class UserStorage {
     }
 
     private Long idGeneration() {
-        if(users.isEmpty()) {
+        if (users.isEmpty()) {
             return 1L;
         } else {
             User us = users.get((long) users.size());

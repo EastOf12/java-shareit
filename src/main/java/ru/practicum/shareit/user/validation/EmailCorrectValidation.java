@@ -9,7 +9,7 @@ public class EmailCorrectValidation implements ConstraintValidator<EmailCorrect,
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        if(email == null || email.contains("@")) {
+        if (email == null || email.contains("@")) {
             return true;
         } else {
             throw new EmailCorrectException("Email некорректен");

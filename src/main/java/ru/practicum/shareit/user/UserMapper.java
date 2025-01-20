@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.request.NewUserRequest;
-import ru.practicum.shareit.user.request.UpdateUserRequest;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserMapper {
