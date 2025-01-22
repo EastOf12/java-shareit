@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.user.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.request.NewUserRequest;
 import ru.practicum.shareit.user.request.UpdateUserRequest;
@@ -18,6 +19,10 @@ public class UserStorage {
     }
 
     public UserDto create(NewUserRequest userRequest) {
+        if(isEmailNotUnique(userRequest.getEmail())) {
+            throw new EmailAlreadyExistsException("Email уже используется");
+        }
+
         User user = UserMapper.mapToUser(userRequest);
         user.setId(idGeneration());
         users.put(user.getId(), user);
@@ -27,7 +32,15 @@ public class UserStorage {
     }
 
     public UserDto update(Long id, UpdateUserRequest updateUserRequest) {
+        if(isEmailNotUnique(updateUserRequest.getEmail())) {
+            throw new EmailAlreadyExistsException("Email уже используется");
+        }
+
         User updateUser = users.get(id);
+
+        if (updateUser == null) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
 
         if (updateUserRequest.getName() != null && !updateUserRequest.getName().isEmpty()) {
             updateUser.setName(updateUserRequest.getName());
@@ -44,17 +57,21 @@ public class UserStorage {
     }
 
     public UserDto get(Long id) {
-        if (!userExists(id)) {
+        User user = users.get(id);
+
+        if (user == null) {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
         log.info("Отдаем пользователя с id {}", id);
 
-        return UserMapper.mapToUserDto(users.get(id));
+        return UserMapper.mapToUserDto(user);
     }
 
     public void remove(Long id) {
-        if (!userExists(id)) {
+        User user = users.get(id);
+
+        if (user == null) {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
@@ -63,14 +80,13 @@ public class UserStorage {
         users.remove(id);
     }
 
-    public boolean isEmailUnique(String email) {
-
+    private boolean isEmailNotUnique(String email) {
         for (User user : users.values()) {
             if (user.getEmail().equals(email)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private Long idGeneration() {
@@ -80,9 +96,5 @@ public class UserStorage {
             User us = users.get((long) users.size());
             return (us.getId() + 1L);
         }
-    }
-
-    public boolean userExists(Long id) {
-        return users.containsKey(id);
     }
 }

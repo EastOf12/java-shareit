@@ -26,7 +26,6 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                           @RequestBody UpdateItemRequest updateItemRequest) {
-        System.out.println("Мы тут");
         return itemService.update(userId, itemId, updateItemRequest);
     }
 

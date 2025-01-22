@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.exception.ItemNotExistException;
 import ru.practicum.shareit.item.exception.UserNotOwnerItemException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.request.NewItemRequest;
@@ -34,6 +35,10 @@ public class ItemStorage {
     public ItemDto update(Long userId, Long itemId, UpdateItemRequest updateItemRequest) {
         Item updateItem = items.get(itemId);
 
+        if(updateItem == null) {
+            throw new ItemNotExistException("Вещь " + itemId + " не существует");
+        }
+
         if (!Objects.equals(updateItem.getOwner(), userId)) {
             throw new UserNotOwnerItemException("Пользователь не владелец вещи");
         }
@@ -61,6 +66,12 @@ public class ItemStorage {
     }
 
     public ItemDto get(Long userId, Long itemId) {
+        Item item = items.get(itemId);
+
+        if(item == null) {
+            throw new ItemNotExistException("Вещь " + itemId + " не существует");
+        }
+
         log.info("Предаем информацию о вещи {} пользователю {}", itemId, userId);
         return ItemMapper.mapToItemDto(items.get(itemId));
     }
@@ -72,10 +83,6 @@ public class ItemStorage {
             Item item = items.get((long) items.size());
             return (item.getId() + 1L);
         }
-    }
-
-    public boolean itemExists(Long id) {
-        return !items.containsKey(id);
     }
 
     public List<ItemDto> getAllUserItems(Long userId) {
