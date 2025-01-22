@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.exception.ItemNotExistException;
 import ru.practicum.shareit.item.request.NewItemRequest;
 import ru.practicum.shareit.item.request.UpdateItemRequest;
 import ru.practicum.shareit.user.UserStorage;

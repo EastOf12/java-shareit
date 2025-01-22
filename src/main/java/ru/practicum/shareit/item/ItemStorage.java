@@ -35,7 +35,7 @@ public class ItemStorage {
     public ItemDto update(Long userId, Long itemId, UpdateItemRequest updateItemRequest) {
         Item updateItem = items.get(itemId);
 
-        if(updateItem == null) {
+        if (updateItem == null) {
             throw new ItemNotExistException("Вещь " + itemId + " не существует");
         }
 
@@ -68,7 +68,7 @@ public class ItemStorage {
     public ItemDto get(Long userId, Long itemId) {
         Item item = items.get(itemId);
 
-        if(item == null) {
+        if (item == null) {
             throw new ItemNotExistException("Вещь " + itemId + " не существует");
         }
 

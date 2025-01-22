@@ -19,7 +19,7 @@ public class UserStorage {
     }
 
     public UserDto create(NewUserRequest userRequest) {
-        if(isEmailNotUnique(userRequest.getEmail())) {
+        if (isEmailNotUnique(userRequest.getEmail())) {
             throw new EmailAlreadyExistsException("Email уже используется");
         }
 
@@ -32,7 +32,7 @@ public class UserStorage {
     }
 
     public UserDto update(Long id, UpdateUserRequest updateUserRequest) {
-        if(isEmailNotUnique(updateUserRequest.getEmail())) {
+        if (isEmailNotUnique(updateUserRequest.getEmail())) {
             throw new EmailAlreadyExistsException("Email уже используется");
         }
 

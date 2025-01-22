@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.exception.UserNotOwnerItemException;
 import ru.practicum.shareit.user.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.user.exception.EmailCorrectException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
+
 import java.util.Map;
 
 @RestControllerAdvice
@@ -31,7 +32,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleUserNotFoundException (final UserNotFoundException e) {
+    public Map<String, String> handleUserNotFoundException(final UserNotFoundException e) {
         return Map.of(
                 "error", e.getMessage()
         );
@@ -39,7 +40,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleEmailAlreadyExistsException (final EmailAlreadyExistsException e) {
+    public Map<String, String> handleEmailAlreadyExistsException(final EmailAlreadyExistsException e) {
         return Map.of(
                 "error", e.getMessage()
         );
@@ -47,7 +48,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleEmailCorrectException (final EmailCorrectException e) {
+    public Map<String, String> handleEmailCorrectException(final EmailCorrectException e) {
         return Map.of(
                 "error", e.getMessage()
         );
