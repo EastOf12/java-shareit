@@ -1,30 +1,14 @@
 package ru.practicum.shareit.user;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.request.NewUserRequest;
 import ru.practicum.shareit.user.request.UpdateUserRequest;
 
-@RequiredArgsConstructor
-@Service
-@Slf4j
-public class UserService {
-    private final UserStorage userStorage;
+public interface UserService {
+    UserDto create(NewUserRequest newUserRequest);
 
-    public UserDto create(NewUserRequest newUserRequest) {
-        return userStorage.create(newUserRequest);
-    }
+    UserDto update(Long id, UpdateUserRequest updateUserRequest);
 
-    public UserDto update(Long id, UpdateUserRequest updateUserRequest) {
-        return userStorage.update(id, updateUserRequest);
-    }
+    UserDto get(Long id);
 
-    public UserDto get(Long id) {
-        return userStorage.get(id);
-    }
-
-    public void delete(Long id) {
-        userStorage.remove(id);
-    }
+    void delete(Long id);
 }
