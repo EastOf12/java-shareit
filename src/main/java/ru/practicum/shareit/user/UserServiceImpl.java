@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.request.UpdateUserRequest;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
