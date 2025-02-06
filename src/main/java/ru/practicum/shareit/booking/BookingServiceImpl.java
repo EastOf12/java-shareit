@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.exeption.BookingNotValidException;
 import ru.practicum.shareit.booking.request.NewBookingRequest;
@@ -21,12 +22,14 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public BookingDto create(Long userId, NewBookingRequest newBookingRequest) {
 
         log.info("Создаем новый запрос бронирования от пользователя {}", userId);
@@ -41,6 +44,14 @@ public class BookingServiceImpl implements BookingService {
             throw new ItemNotAvailableException("Вещь с " + item.getId() + " недоступна для бронирования");
         }
 
+        Sort sort = Sort.by(Sort.Direction.ASC, "start");
+        List<Booking> bookings = bookingRepository.findByItem_Id(item.getId(), sort);
+
+        if (isBookingConflict(newBookingRequest, bookings)) {
+            throw new ItemNotAvailableException("Вещь с " + item.getId() + " пересекается по времени " +
+                    "с другим бронированием");
+        }
+
         Booking booking = bookingRepository.save(
                 BookingMapper.mapToNewBooking(newBookingRequest, item, user)
         );
@@ -49,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingDto changeBookingStatus(Long userId, Long bookingId, Boolean approved) {
         log.info("Пользователь {} меняет статус бронирования {} на {}", userId, bookingId, approved);
 
@@ -59,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование " + bookingId + " не найдено"));
 
-        if (!userId.equals(booking.getItem().getOwner())) {
+        if (!userId.equals(booking.getItem().getOwner().getId())) {
             throw new BookingNotValidException("Пользователь " + userId + " не владелец вещи");
         }
 
@@ -84,7 +96,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Бронирование " + bookingId + " не найдено"));
 
 
-        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner())) {
+        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner().getId())) {
             throw new BookingNotValidException("У пользователя " + userId + " нет доступа к бронированию " + bookingId);
         }
 
@@ -145,5 +157,21 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookingDtos;
+    }
+
+    private boolean isBookingConflict(NewBookingRequest newBookingRequest, List<Booking> bookings) {
+        LocalDateTime newStart = newBookingRequest.getStart();
+        LocalDateTime newEnd = newBookingRequest.getEnd();
+
+        for (Booking booking : bookings) {
+            LocalDateTime bookingStart = booking.getStart();
+            LocalDateTime bookingEnd = booking.getEnd();
+
+            if (newStart.isBefore(bookingEnd) && newEnd.isAfter(bookingStart)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

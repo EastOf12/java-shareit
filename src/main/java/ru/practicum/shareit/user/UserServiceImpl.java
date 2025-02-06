@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.user.request.NewUserRequest;
@@ -11,11 +12,12 @@ import ru.practicum.shareit.user.request.UpdateUserRequest;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-
     @Override
+    @Transactional
     public UserDto create(NewUserRequest newUserRequest) {
         log.info("Создаем нового пользователя");
 
@@ -28,6 +30,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto update(Long id, UpdateUserRequest updateUserRequest) {
         log.info("Обновляем пользователя с id {}", id);
 
@@ -61,6 +64,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         log.info("Удаляем пользователя с id {}", id);
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.User;
 
 @Data
 @Entity
@@ -25,13 +26,14 @@ public class Item {
     @Column(name = "available", nullable = false)
     private Boolean available;
 
-    @Column(name = "owner", nullable = false)
-    private Long owner;
+    @ManyToOne
+    @JoinColumn(name = "owner", nullable = false)
+    private User owner;
 
     @Column(name = "request")
     private Long request;
 
-    public Item(String name, String description, Boolean available, Long owner) {
+    public Item(String name, String description, Boolean available, User owner) {
         this.name = name;
         this.description = description;
         this.available = available;

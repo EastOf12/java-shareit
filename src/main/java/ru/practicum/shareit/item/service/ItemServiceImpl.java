@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.exeption.BookingNotValidException;
@@ -31,6 +32,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -38,18 +40,19 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    public ItemDto create(Long owner, NewItemRequest newItemRequest) {
+    @Transactional
+    public ItemDto create(Long ownerId, NewItemRequest newItemRequest) {
         log.info("Создаем вещь");
 
-        if (userRepository.findById(owner).isEmpty()) {
-            throw new NotFoundException("Пользователь " + owner + " не найден");
-        }
+        User owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Пользователь " + ownerId + " не найден"));
 
         Item item = itemRepository.save(ItemMapper.mapToNewItem(owner, newItemRequest));
         return ItemMapper.mapToItemDto(item);
     }
 
     @Override
+    @Transactional
     public ItemDto update(Long userId, Long itemId, UpdateItemRequest updateItemRequest) {
         log.info("Обновляем вещь {}", itemId);
 
@@ -60,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
         Item updateItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь " + itemId + " не найдена"));
 
-        if (!Objects.equals(updateItem.getOwner(), userId)) {
+        if (!Objects.equals(updateItem.getOwner().getId(), userId)) {
             throw new UserNotOwnerItemException("Пользователь не владелец вещи");
         }
 
@@ -129,7 +132,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Пользователь " + userId + " не найден");
         }
 
-        List<Item> items = itemRepository.findByOwner(userId);
+        List<Item> items = itemRepository.findByOwnerId(userId);
         List<ItemDto> itemDtos = new ArrayList<>();
 
         Sort sort = Sort.by(Sort.Direction.ASC, "start");
@@ -138,7 +141,7 @@ public class ItemServiceImpl implements ItemService {
         for (Item item : items) {
             List<Comment> comments = commentRepository.findByItemId(item.getId());
 
-            if (userId.equals(item.getOwner())) {
+            if (userId.equals(item.getOwner().getId())) {
                 LocalDateTime lastBooking = null;
                 LocalDateTime nextBooking = null;
 
@@ -192,6 +195,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto createComment(Long userId, Long itemId, NewCommentRequest newCommentRequest) {
 
         log.info("Пользователь {} создает комментарий на вещь {}", userId, itemId);

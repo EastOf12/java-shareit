@@ -5,13 +5,14 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.request.NewItemRequest;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ItemMapper {
 
-    public static Item mapToNewItem(Long owner, NewItemRequest newItemRequest) {
+    public static Item mapToNewItem(User owner, NewItemRequest newItemRequest) {
         Item item = new Item(
                 newItemRequest.getName(),
                 newItemRequest.getDescription(),
@@ -33,7 +34,7 @@ public final class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getOwner()
+                item.getOwner().getId()
         );
     }
 
@@ -43,7 +44,7 @@ public final class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getOwner(),
+                item.getOwner().getId(),
                 lastBooking,
                 nextBooking
         );

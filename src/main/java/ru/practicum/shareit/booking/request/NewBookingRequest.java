@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.request;
 
 import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -13,28 +15,12 @@ public class NewBookingRequest {
     private Long itemId;
 
     @NotNull
+    @FutureOrPresent
     private LocalDateTime start;
 
     @NotNull
+    @Future
     private LocalDateTime end;
-
-    @AssertTrue(message = "Start не может быть в прошлом")
-    public boolean isStartNotInPast() {
-        if (start == null) {
-            return false;
-        }
-
-        return start.isAfter(LocalDateTime.now());
-    }
-
-    @AssertTrue(message = "End не можем быть в прошлом")
-    public boolean isEndNotInPast() {
-        if (end == null) {
-            return false;
-        }
-
-        return end.isAfter(LocalDateTime.now());
-    }
 
     @AssertTrue(message = "Start и end не могут быть равны")
     public boolean isStartEndNotEqual() {
