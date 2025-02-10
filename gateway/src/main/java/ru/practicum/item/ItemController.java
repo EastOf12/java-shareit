@@ -9,8 +9,6 @@ import ru.practicum.item.request.NewCommentRequest;
 import ru.practicum.item.request.NewItemRequest;
 import ru.practicum.item.request.UpdateItemRequest;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")

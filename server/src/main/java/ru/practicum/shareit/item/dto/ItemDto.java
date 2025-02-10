@@ -32,11 +32,12 @@ public class ItemDto {
         this.nextBooking = nextBooking;
     }
 
-    public ItemDto(Long id, String name, String description, boolean available, Long owner) {
+    public ItemDto(Long id, String name, String description, boolean available, Long owner, Long request) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;
         this.owner = owner;
+        this.request = request;
     }
 }

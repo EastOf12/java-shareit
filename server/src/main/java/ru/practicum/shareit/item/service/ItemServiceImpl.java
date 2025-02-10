@@ -48,6 +48,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь " + ownerId + " не найден"));
 
         Item item = itemRepository.save(ItemMapper.mapToNewItem(owner, newItemRequest));
+
         return ItemMapper.mapToItemDto(item);
     }
 

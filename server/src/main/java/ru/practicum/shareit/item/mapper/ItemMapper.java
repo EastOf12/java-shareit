@@ -21,8 +21,8 @@ public final class ItemMapper {
         );
 
 
-        if (newItemRequest.getRequest() != null) {
-            item.setRequest(newItemRequest.getRequest());
+        if (newItemRequest.getRequestId() != null) {
+            item.setRequest(newItemRequest.getRequestId());
         }
 
         return item;
@@ -34,7 +34,8 @@ public final class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getOwner().getId()
+                item.getOwner().getId(),
+                item.getRequest()
         );
     }
 
