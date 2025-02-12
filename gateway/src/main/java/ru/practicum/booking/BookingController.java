@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.request.NewBookingRequest;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/bookings")
@@ -34,21 +32,21 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                 @PathVariable Long bookingId) {
+                                             @PathVariable Long bookingId) {
 
         return bookingClient.getBooking(userId, bookingId);
     }
 
     @GetMapping
     public ResponseEntity<Object> getBookingsByBooker(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                                @RequestParam(defaultValue = "ALL") StateBooking state) {
+                                                      @RequestParam(defaultValue = "ALL") StateBooking state) {
 
         return bookingClient.getBookingsByBooker(bookerId, state);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getBookingsByItemOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                   @RequestParam(defaultValue = "ALL") StateBooking state) {
+                                                         @RequestParam(defaultValue = "ALL") StateBooking state) {
 
         return bookingClient.getBookingsByItemOwner(ownerId, state);
     }

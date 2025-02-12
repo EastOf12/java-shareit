@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ItemRequestServiceImpl implements ItemRequestService{
+public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -48,7 +48,7 @@ public class ItemRequestServiceImpl implements ItemRequestService{
         List<ItemRequest> itemRequests = itemRequestRepository.findByOwnerId(userId);
         List<ItemRequestDto> itemRequestDtos = new ArrayList<>();
 
-        for (ItemRequest itemRequest: itemRequests) {
+        for (ItemRequest itemRequest : itemRequests) {
             List<Item> items = itemRepository.findByRequest(itemRequest.getId());
             itemRequestDtos.add(ItemRequestMapper.mapToItemRequestDto(itemRequest, items));
         }
@@ -84,7 +84,7 @@ public class ItemRequestServiceImpl implements ItemRequestService{
         List<ItemRequest> itemRequests = itemRequestRepository.findByOwnerIdNot(userId);
         List<ItemRequestDto> itemRequestDtos = new ArrayList<>();
 
-        for (ItemRequest itemRequest: itemRequests) {
+        for (ItemRequest itemRequest : itemRequests) {
             List<Item> items = itemRepository.findByRequest(itemRequest.getId());
             itemRequestDtos.add(ItemRequestMapper.mapToItemRequestDto(itemRequest, items));
         }

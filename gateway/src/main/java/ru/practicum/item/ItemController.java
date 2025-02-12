@@ -24,7 +24,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                          @RequestBody UpdateItemRequest updateItemRequest) {
+                                         @RequestBody UpdateItemRequest updateItemRequest) {
         return itemClient.update(userId, itemId, updateItemRequest);
     }
 
@@ -45,8 +45,8 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @PathVariable Long itemId,
-                                    @RequestBody NewCommentRequest newCommentRequest) {
+                                                @PathVariable Long itemId,
+                                                @RequestBody NewCommentRequest newCommentRequest) {
 
         return itemClient.createComment(userId, itemId, newCommentRequest);
     }

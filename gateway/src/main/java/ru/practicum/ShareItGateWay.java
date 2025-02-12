@@ -6,6 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ShareItGateWay {
     public static void main(String[] args) {
-        SpringApplication.run(ShareItGateWay .class, args);
+        SpringApplication.run(ShareItGateWay.class, args);
     }
 }

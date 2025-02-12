@@ -9,7 +9,10 @@ import java.util.List;
 public interface ItemRequestService {
 
     ItemRequestDto create(Long userId, NewItemRequest newItemRequest);
+
     List<ItemRequestDto> getUserItemRequest(Long userId);
+
     ItemRequestDto getItemRequest(Long userId, Long requestId);
+
     List<ItemRequestDto> getItemRequestAll(Long userId);
 }
