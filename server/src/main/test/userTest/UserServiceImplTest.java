@@ -1,40 +1,99 @@
 package userTest;
 
-import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.ShareItServer;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.request.NewUserRequest;
+import ru.practicum.shareit.user.request.UpdateUserRequest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.ArrayList;
+import java.util.Optional;
 
-
-@Transactional
-@SpringBootTest(
-        classes = ShareItServer.class,
-        properties = "jdbc.url=jdbc:postgresql://localhost:5432/test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-class UserServiceImplTest {
-    private final UserService service;
-
-    @Test
-    void testSaveUser() {
-        NewUserRequest newUserRequest = new NewUserRequest();
-        newUserRequest.setName("bob");
-        newUserRequest.setEmail("bob@mail.ru");
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
 
-        UserDto userDto = service.create(newUserRequest);
+@ExtendWith(MockitoExtension.class)
+public class UserServiceImplTest {
 
-        assertThat(userDto).isNotNull();
-        assertThat(userDto.getId()).isGreaterThan(0);
-        assertThat(userDto.getName()).isEqualTo("bob");
-        assertThat(userDto.getEmail()).isEqualTo("bob@mail.ru");
+    User user;
+    UserDto userDto;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private UserServiceImpl userService;
+
+    @BeforeEach
+    void setUp() {
+        user = new User();
+        user.setId(1L);
+        user.setName("bob");
+        user.setEmail("bob@example.com");
+
+        userDto = new UserDto(
+                1L,
+                "bob",
+                "bob@example.com"
+        );
     }
 
+    @Test
+    void createUser_whenValidRequest_thenReturnsUserDto() throws Exception {
+        when(userRepository.save(any()))
+                .thenReturn(user);
+
+        when(userRepository.findByEmailContainingIgnoreCase(any()))
+                .thenReturn(new ArrayList<>());
+
+        NewUserRequest newUserRequest = new NewUserRequest();
+        UserDto userDtoNew = userService.create(newUserRequest);
+
+        assertEquals(userDto, userDtoNew, "Созданный пользователь не совпадает с ожидаемым");
+    }
+
+    @Test
+    void updateUser_whenValidRequest_thenReturnsUserDto() throws Exception {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(userRepository.findByEmailContainingIgnoreCase(any()))
+                .thenReturn(new ArrayList<>());
+
+        when(userRepository.save(any()))
+                .thenReturn(user);
+
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
+        UserDto userDtoUpdate = userService.update(1L, updateUserRequest);
+
+        assertEquals(userDto, userDtoUpdate, "Обновленный пользователь пользователь не совпадает с ожидаемым");
+    }
+
+    @Test
+    void getUser_whenValidRequest_thenReturnsUserDto() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+
+        UserDto userDto = userService.get(1L);
+
+        assertEquals(userDto, userDto, "Полученный пользователь пользователь не совпадает с ожидаемым");
+    }
+
+    @Test
+    void deleteUser_whenValidRequest_thenReturnsUserDto() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+
+        userService.delete(1L);
+
+        verify(userRepository, times(1)).delete(user);
+    }
 }

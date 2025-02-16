@@ -1,54 +1,159 @@
 package bookingTest;
 
-import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.ShareItServer;
-import ru.practicum.shareit.booking.BookingService;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.booking.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.request.NewBookingRequest;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.request.NewItemRequest;
-import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
+public class BookingServiceImplTest {
+    Item item;
+    User user;
+    Booking booking;
+    BookingDto bookingDto;
+    @Mock
+    private ItemRepository itemRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private BookingRepository bookingRepository;
+    @InjectMocks
+    private BookingServiceImpl bookingService;
 
-@Transactional
-@SpringBootTest(
-        classes = ShareItServer.class,
-        properties = "jdbc.url=jdbc:postgresql://localhost:5432/test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-class BookingServiceImplTest {
-    private final BookingService bookingService;
-    private final ItemService itemService;
+    @BeforeEach
+    void setUp() {
+        user = new User();
+        user.setId(1L);
+        user.setName("bob");
+        user.setEmail("bob@example.com");
 
-    @Test
-    void testSaveBookingRequest() {
-        Long userId = 1L;
-        ru.practicum.shareit.item.request.NewItemRequest newItemRequest = new NewItemRequest();
-        newItemRequest.setName("боб");
-        newItemRequest.setDescription("Классный боб");
-        newItemRequest.setAvailable(true);
+        item = new Item();
+        item.setId(1L);
+        item.setName("Боб");
+        item.setDescription("Очень вкусный боб");
+        item.setAvailable(true);
+        item.setOwner(user);
 
-        ItemDto itemDto = itemService.create(userId, newItemRequest);
+        LocalDateTime start = LocalDateTime.now().plusDays(1);
+        LocalDateTime end = LocalDateTime.now().plusDays(2);
 
-        NewBookingRequest newBookingRequest = new NewBookingRequest(
-                itemDto.getId(),
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(2)
+        booking = new Booking(
+                1L,
+                start,
+                end,
+                item,
+                user,
+                OrderStatus.WAITING
         );
 
-        BookingDto bookingDto = bookingService.create(userId, newBookingRequest);
+        bookingDto = new BookingDto(
+                1L,
+                start,
+                end,
+                item,
+                user,
+                OrderStatus.WAITING
+        );
+    }
 
-        assertThat(bookingDto).isNotNull();
-        assertThat(bookingDto.getId()).isGreaterThan(0);
-        assertThat(bookingDto.getBooker().getId()).isEqualTo(userId);
+    @Test
+    void createBooking_whenValidRequest_thenReturnsBookingDto() throws Exception {
+        when(itemRepository.findById(any()))
+                .thenReturn(Optional.ofNullable(item));
+
+        when(userRepository.findById(any()))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepository.findByItem_Id(any(), any()))
+                .thenReturn(new ArrayList<>());
+
+        when(bookingRepository.save(any()))
+                .thenReturn(booking);
+
+        NewBookingRequest newBookingRequest = new NewBookingRequest(
+                item.getId(),
+                LocalDateTime.now().plusDays(5),
+                LocalDateTime.now().plusDays(6)
+        );
+
+        BookingDto bookingDtoNew = bookingService.create(user.getId(), newBookingRequest);
+
+        assertEquals(bookingDto, bookingDtoNew, "Полученное бронирование не совпадает с ожидаемым");
+    }
+
+    @Test
+    void changeBookingStatus_whenValidRequest_thenReturnsBookingDto() throws Exception {
+        bookingDto.setStatus(OrderStatus.APPROVED);
+
+        when(userRepository.findById(any()))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepository.findById(any()))
+                .thenReturn(Optional.ofNullable(booking));
+
+        when(bookingRepository.save(any()))
+                .thenReturn(booking);
+
+        BookingDto bookingDtoNew = bookingService.changeBookingStatus(user.getId(), booking.getId(), true);
+
+        assertEquals(bookingDto, bookingDtoNew, "Полученное бронирование не совпадает с ожидаемым");
+    }
+
+    @Test
+    void getBooking_whenValidRequest_thenReturnsBookingDto() throws Exception {
+        when(userRepository.findById(any()))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepository.findById(any()))
+                .thenReturn(Optional.ofNullable(booking));
+
+        BookingDto bookingDtoNew = bookingService.getBooking(user.getId(), booking.getId());
+
+        assertEquals(bookingDto, bookingDtoNew, "Полученное бронирование не совпадает с ожидаемым");
+    }
+
+    @Test
+    void getBookingsByBooker_whenValidRequest_thenReturnsBookingDtos() throws Exception {
+        when(userRepository.findById(any()))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepository.findByBooker_Id(any(), any()))
+                .thenReturn(new ArrayList<>(List.of(booking)));
+
+        List<BookingDto> bookingDtos = bookingService.getBookingsByBooker(user.getId(), StateBooking.ALL);
+
+        assertEquals(bookingDto, bookingDtos.getFirst(), "Полученное бронирование не совпадает с ожидаемым");
+    }
+
+    @Test
+    void getBookingsByItemOwner_whenValidRequest_thenReturnsBookingDtos() throws Exception {
+        when(userRepository.findById(any()))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepository.findByItem_Id(any(), any()))
+                .thenReturn(new ArrayList<>(List.of(booking)));
+
+        List<BookingDto> bookingDtos = bookingService.getBookingsByItemOwner(user.getId(), StateBooking.ALL);
+
+        assertEquals(bookingDto, bookingDtos.getFirst(), "Полученное бронирование не совпадает с ожидаемым");
     }
 
 }
